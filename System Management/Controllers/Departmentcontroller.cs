@@ -20,17 +20,19 @@ namespace System_Management.Controllers
             this.mapper = mapper;
         }
         [Authorize(Roles = "HR,Admin,User")]
-
         [HttpGet]
         public async Task<IActionResult> Index(string value)
         {
             var spec = new DepartmentSpecification(value);
-            var department = await unitOfWork.Repository<Department>().GetAllSpecAsync(spec);
-            if (department is null)
-                return NotFound();
-            var deptmap = mapper.Map<IReadOnlyList<Department>, IReadOnlyList<DepartmentViewModel>>(department);
-            return View(deptmap);
+            var departments = await unitOfWork.Repository<Department>().GetAllSpecAsync(spec);
+
+            if (departments == null || !departments.Any())
+                return View(new List<DepartmentViewModel>());
+
+            var deptMap = mapper.Map<IReadOnlyList<Department>, IReadOnlyList<DepartmentViewModel>>(departments);
+            return View(deptMap);
         }
+
         [Authorize(Roles = "HR,Admin")]
         [HttpGet]
         public IActionResult Create()

@@ -20,20 +20,35 @@ namespace Company.BLL.Repositories
         }
         public async Task SendEmailAsync(string to, string subject, string body)
         {
-            var client = new SmtpClient(conf.SmtpHost)
+            try
             {
-                Port = conf.SmtpPort,
-                Credentials = new NetworkCredential(conf.SenderEmail, conf.SenderPassword),
-                EnableSsl=true
-            };
-            var sendmessage = new MailMessage()
+                using var client = new SmtpClient(conf.SmtpHost)
+                {
+                    Port = conf.SmtpPort,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(conf.SenderEmail, conf.SenderPassword),
+                    EnableSsl = true
+                };
+
+                using var sendmessage = new MailMessage()
+                {
+                    From = new MailAddress(conf.SenderEmail),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+
+                sendmessage.To.Add(to);
+
+                await client.SendMailAsync(sendmessage);
+            }
+            catch (SmtpException ex)
             {
-                From = new MailAddress(conf.SenderEmail),
-                Subject = subject,
-                Body = body
-            };
-            sendmessage.To.Add(to);
-            await client.SendMailAsync(sendmessage);
+                // log details for debugging
+                Console.WriteLine($"SMTP Error: {ex.StatusCode} - {ex.Message}");
+                throw;
+            }
         }
+
     }
 }

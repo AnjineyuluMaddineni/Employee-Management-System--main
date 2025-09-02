@@ -22,15 +22,18 @@ namespace System_Management.Controllers
         }
         [Authorize(Roles = "HR,Admin,User")]
         [HttpGet]
-        public async Task<IActionResult> Index(string value)
+        public async Task<IActionResult> Index(string email)
         {
-            var spec = new EmployeeSpecification(value);
-            var employee = await unitOfWork.Repository<Employee>().GetAllSpecAsync(spec);
-            if (employee is null)
-                return NotFound();
-            var empmap = mapper.Map<IReadOnlyList<Employee>, IReadOnlyList<EmployeeViewModel>>(employee);
+            var spec = new EmployeeSpecification(email);
+            var employees = await unitOfWork.Repository<Employee>().GetAllSpecAsync(spec);
+
+            if (employees is null || !employees.Any())
+                return View(new List<EmployeeViewModel>()); // return empty list
+
+            var empmap = mapper.Map<IReadOnlyList<Employee>, IReadOnlyList<EmployeeViewModel>>(employees);
             return View(empmap);
         }
+
         [Authorize(Roles = "HR,Admin")]
         [HttpGet]
         public async Task<IActionResult> Create()

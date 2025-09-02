@@ -26,14 +26,15 @@
 
 
     <!-- Search Bar -->
-    <div class="container w-75 mt-2">
-        <form asp-action="Index" method="get" class="d-flex shadow-sm">
-            <input class="form-control me-2" type="email" name="value" placeholder="Search by email..." />
-            <button class="btn btn-primary text-white" type="submit">
-                <i class="fas fa-search"></i> Search
-            </button>
-        </form>
-    </div>
+<div class="container w-75 mt-2">
+    <form asp-action="Index" method="get" class="d-flex shadow-sm">
+        <input class="form-control me-2" type="text" name="email" placeholder="Search by name, email, phone, or department..." />
+        <button class="btn btn-primary text-white" type="submit">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+</div>
+
 
 
 

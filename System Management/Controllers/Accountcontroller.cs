@@ -137,13 +137,13 @@ namespace System_Management.Controllers
         }
         /// 
         ///Register Admin
-        [Authorize(Roles ="Admin")]
+        //[Authorize(Roles ="Admin")]
         [HttpGet]
         public IActionResult RegisterAdmin()
         {
             return View();
         }
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> RegisterAdmin(RegisterViewModel model)
         {

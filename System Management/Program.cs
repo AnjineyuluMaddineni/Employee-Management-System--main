@@ -1,3 +1,5 @@
+using Company.BLL.Interfaces;
+using Company.BLL.Repositories;
 using Company.DAL.Context;
 using Company.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +28,9 @@ namespace System_Management
             builder.Services.Configure<EmailSetting>(
                 builder.Configuration.GetSection("Email")
                 );
-      
+
+            builder.Services.AddScoped<IEmailServic, EmailServic>();
+
 
             var app = builder.Build();
 

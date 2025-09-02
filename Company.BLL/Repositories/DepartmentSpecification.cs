@@ -13,7 +13,11 @@ namespace Company.BLL.Repositories
         {
 
             if (!string.IsNullOrEmpty(name))
-                WH = x => x.Department_Name.ToLower() == name.ToLower();
+            {
+                WH = x =>
+                    x.Department_Name.ToLower().Contains(name.ToLower()) ||
+                    x.Code.ToLower().Contains(name.ToLower());
+            }
 
         }
         public DepartmentSpecification(int id):base(x=>x.Id==id)
