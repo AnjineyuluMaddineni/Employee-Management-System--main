@@ -1,70 +1,36 @@
-# System Management
+# User Management Application
 
-A web application built with ASP.NET Core Razor Pages (.NET 6) for managing company-related data and user identities.
+This is an ASP.NET Core MVC based User Management application that supports role-based access control with three predefined roles: Regular Employee, HR, and Admin.
 
 ## Features
+- View, edit and update user information
+- Role-based authorization
+- CRUD operations for Employees and Departments (HR and Admin only)
+- User and Role management (Admin only)
 
-- User authentication and identity management
-- Company data management
-- Secure connection to SQL Server databases
-- Email notifications via SMTP (Gmail supported)
-- Configurable logging
+## Access Permissions
+This application defines three main roles: Regular Employee, HR, and Admin.
 
-## Technologies Used
+**Regular Employee**
+- Can view Departments and Employees data (read-only).
+- Cannot create, edit, or delete any data.
+- Cannot access user accounts or roles management.
 
-- ASP.NET Core Razor Pages (.NET 6)
-- Entity Framework Core
-- SQL Server
-- SMTP (for email notifications)
+**HR**
+- Can access Departments and Employees sections.
+- Can create, edit, delete and view details of Departments and Employees.
 
-## Getting Started
+**Admin**
+- All HR permissions.
+- Additionally, can manage User Accounts and Roles.
 
-### Prerequisites
+*Unauthorized access to restricted pages will redirect the user to the access denied page or login screen.*
 
-- [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
-- Visual Studio 2022 or later
+## Setup
+1. Clone the repository
+2. Configure the database connection in `appsettings.json`
+3. Run database migrations
+4. Build and run the application
 
-### Configuration
-
-1. **Database Connections:**  
-   Update the `ConnectionStrings` section in `appsettings.json` with your SQL Server details:
-   - `CompanyConnection`
-   - `IdentityConnection`
-
-2. **Email Settings:**  
-   Configure the `Email` section in `appsettings.json` with your SMTP provider details.
-
-3. **Logging:**  
-   Adjust logging levels in the `Logging` section as needed.
-
-### Running the Application
-
-1. Restore NuGet packages:
-   dotnet restore
-2. Apply database migrations (if applicable):
-   dotnet ef database update
-3. Run the application:
-   dotnet run
-
-
-### Usage
-
-- Access the application in your browser at `https://localhost:5001` (or the port specified in launch settings).
-- Use the provided features to manage company data and user accounts.
-
-## Folder Structure
-
-- `Pages/` - Razor Pages for UI
-- `Data/` - Database context and models
-- `wwwroot/` - Static files
-- `appsettings.json` - Application configuration
-
-## License
-
-This project is licensed under the MIT License.
-
----
-
-**Note:**  
-Replace sensitive information in `appsettings.json` (such as email and passwords) before publishing to GitHub.
+## Notes
+Unauthorized users are redirected to the Access Denied page or Login screen.
