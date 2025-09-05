@@ -21,17 +21,25 @@ namespace System_Management.Controllers
         }
         [Authorize(Roles = "HR,Admin,User")]
         [HttpGet]
-        public async Task<IActionResult> Index(string value)
+        public async Task<IActionResult> Index(string value, int pageNumber = 1, int pageSize = 5)
         {
             var spec = new DepartmentSpecification(value);
+
+            // Fetch all first
             var departments = await unitOfWork.Repository<Department>().GetAllSpecAsync(spec);
 
             if (departments == null || !departments.Any())
-                return View(new List<DepartmentViewModel>());
+                return View(new PaginatedList<DepartmentViewModel>(new List<DepartmentViewModel>(), 0, pageNumber, pageSize));
 
+            // Map to ViewModel
             var deptMap = mapper.Map<IReadOnlyList<Department>, IReadOnlyList<DepartmentViewModel>>(departments);
-            return View(deptMap);
+
+            // Use PaginatedList
+            var paginatedDepts = PaginatedList<DepartmentViewModel>.Create(deptMap.AsQueryable(), pageNumber, pageSize);
+
+            return View(paginatedDepts);
         }
+
 
         [Authorize(Roles = "HR,Admin")]
         [HttpGet]

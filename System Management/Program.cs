@@ -1,8 +1,9 @@
-using Company.BLL.Interfaces;
+﻿using Company.BLL.Interfaces;
 using Company.BLL.Repositories;
 using Company.DAL.Context;
 using Company.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Threading.Tasks;
 using System_Management.Extensions;
 
@@ -13,6 +14,24 @@ namespace System_Management
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) // optional file logging
+                .WriteTo.MSSqlServer(
+                     connectionString: builder.Configuration.GetConnectionString("CompanyConnection"),
+                     sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+                     {
+                         TableName = "Logs",
+                         AutoCreateSqlTable = true
+                     })
+                .CreateLogger();
+
+
+            builder.Host.UseSerilog(); 
+
             builder.Services.GetAppService();
             //companydbcontext DI
             builder.Services.AddDbContext<CompanyDbContext>(options =>
@@ -60,6 +79,8 @@ namespace System_Management
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            // ✅ Use Serilog request logging
+            app.UseSerilogRequestLogging();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

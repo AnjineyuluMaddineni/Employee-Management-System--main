@@ -1,124 +1,176 @@
-﻿@{
-    ViewData["Title"] = "Index";
+﻿@model PaginatedList<EmployeeViewModel>
+
+@{
+    ViewData["Title"] = "Employees";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@model IReadOnlyList<EmployeeViewModel>
 
-<!-- TempData Alert -->
+<!-- ✅ TempData Alert -->
 @if (TempData["res"] is not null)
 {
-    <div class="d-flex justify-content-center mt-3">
-        <div class="alert alert-success w-25 text-center shadow-sm">
-            @TempData["res"]
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show shadow-lg rounded-pill text-center fw-bold" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["res"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     </div>
 }
-@if (User.IsInRole("HR") || User.IsInRole("Admin"))
-{
-    <!-- Create Button -->
-    <div class="my-3">
-        <a asp-action="Create" class="btn btn-success fw-bold shadow-sm">
-            <i class="fa-solid fa-plus me-1"></i> Create Employee
-        </a>
+
+<div class="container mt-4">
+
+    <!-- ✅ Header with Create Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded shadow-sm"
+         style="background: linear-gradient(45deg, #3498db, #2c3e50);">
+        <h2 class="fw-bold text-white m-0">
+            <i class="fas fa-users"></i> Employees
+        </h2>
+
+        @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-light fw-bold shadow-sm rounded-pill px-4">
+                <i class="fa-solid fa-plus me-1"></i> Add Employee
+            </a>
+        }
     </div>
 
-}
-
-
-    <!-- Search Bar -->
-<div class="container w-75 mt-2">
-    <form asp-action="Index" method="get" class="d-flex shadow-sm">
-        <input class="form-control me-2" type="text" name="email" placeholder="Search by name, email, phone, or department..." />
-        <button class="btn btn-primary text-white" type="submit">
-            <i class="fas fa-search"></i> Search
+    <!-- ✅ Search Bar -->
+    <form asp-action="Index" method="get" class="input-group mb-4 shadow-sm rounded-pill">
+        <input class="form-control rounded-start-pill border-0 ps-3"
+               type="text" name="email"
+               placeholder="🔍 Search by name, email, phone, or department..."
+               value="@Context.Request.Query["email"]" />
+        <button class="btn btn-primary rounded-end-pill fw-bold px-4" type="submit">
+            <i class="fas fa-search"></i>
         </button>
     </form>
+
+    <!-- ✅ Employee Table -->
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle text-center bg-white mt-3 shadow-sm rounded">
+                <thead class="table-dark">
+                    <tr>
+                        <th><i class="fas fa-image"></i> Image</th>
+                        <th><i class="fas fa-user"></i> First Name</th>
+                        <th><i class="fas fa-user"></i> Last Name</th>
+                        <th><i class="fas fa-birthday-cake"></i> Age</th>
+                        <th><i class="fas fa-money-bill-wave"></i> Salary</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Address</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-phone"></i> Phone</th>
+                        <th><i class="fas fa-calendar-alt"></i> Hire Date</th>
+                        <th><i class="fas fa-check-circle"></i> Status</th>
+                        <th><i class="fas fa-building"></i> Department</th>
+                        @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+                        {
+                            <th colspan="3"><i class="fas fa-cogs"></i> Actions</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var x in Model)
+                    {
+                        <tr>
+                            <td>
+                                <img src="~/files/images/@x.Image"
+                                     alt="Image not found"
+                                     class="rounded-circle border border-2 shadow-sm"
+                                     style="width:60px; height:60px; object-fit:cover;" />
+                            </td>
+                            <td>@x.FirstName</td>
+                            <td>@x.LastName</td>
+                            <td>@x.Age</td>
+                            <td class="fw-bold text-success">₹@x.Salary.ToString("N0")</td>
+                            <td>@x.Address</td>
+                            <td>@x.Email</td>
+                            <td>@x.PhoneNumber</td>
+                            <td>@x.HireDate.ToString("dd-MMM-yyyy")</td>
+                            <td>
+                                <span class="badge @(x.IsActive ? "bg-success" : "bg-danger") px-3 py-2">
+                                    @(x.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td>@(x.department?.Department_Name ?? "No Department")</td>
+
+                            @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+                            {
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@x.Id"
+                                       class="btn btn-info btn-sm text-white rounded-pill"
+                                       data-bs-toggle="tooltip" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@x.Id"
+                                       class="btn btn-warning btn-sm text-dark rounded-pill"
+                                       data-bs-toggle="tooltip" title="Edit Employee">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@x.Id"
+                                       class="btn btn-danger btn-sm text-white rounded-pill"
+                                       onclick="return confirm('Are you sure you want to delete this employee?');"
+                                       data-bs-toggle="tooltip" title="Delete Employee">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <!-- ✅ Empty State -->
+        <div class="card text-center mt-5 shadow-sm border-0">
+            <div class="card-body">
+                <h3 class="text-muted">
+                    <i class="fas fa-user-slash text-danger me-2"></i> No employees found.
+                </h3>
+                <p class="text-muted">Try adjusting your search or add a new employee.</p>
+            </div>
+        </div>
+    }
 </div>
 
-
-
-
-<!-- Table Display -->
-@if (Model.Any())
+<!-- ✅ Pagination UI -->
+@if (Model.TotalPages > 1)
 {
-    <div class=" text-white text-center py-2 mt-4 shadow-sm rounded" style="background-color:#2C3E50">
-        <h2>All Employees</h2>
-    </div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-4 shadow-sm rounded-pill">
 
-    <div class="table-responsive mt-3">
-        <table class="table table-striped table-hover text-center bg-white mt-3 shadow-sm rounded border border-5">
-            <thead class="table-light">
-                <tr>
-                    <th>Image</th>
-                    <th>FirstName</th>
-                    <th>LastName</th>
-                    <th>Age</th>
-                    <th>Salary</th>
-                    <th>Address</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Hire Date</th>
-                    <th>Status</th>
-                    <th>Department</th>
-                    @if(User.IsInRole("HR") || User.IsInRole("Admin"))
-                    {
-                        <th class="bg-info text-white">Details</th>
-                        <th class="bg-warning text-dark">Edit</th>
-                        <th class="bg-danger text-white">Delete</th>
-                     
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var x in Model)
-                {
-                    <tr>
-                        <td>
-                            <img src="~/files/images/@x.Image" alt="Image not found" width="70" height="70" class="rounded-circle border border-2" />
-                        </td>
-                        <td>@x.FirstName</td>
-                        <td>@x.LastName</td>
-                        <td>@x.Age</td>
-                        <td>@x.Salary</td>
-                        <td>@x.Address</td>
-                        <td>@x.Email</td>
-                        <td>@x.PhoneNumber</td>
-                        <td>@x.HireDate.ToShortDateString()</td>
-                        <td class="fw-bold @(x.IsActive ? "text-success" : "text-danger")">
-                            @(x.IsActive ? "Active" : "Inactive")
-                        </td>
-                        <td>
-                            @(x.department?.Department_Name ?? "No Department")
-                        </td>
-                        @if(User.IsInRole("HR") || User.IsInRole("Admin"))
-                        {
-                            <td>
-                                <a asp-action="Details" asp-route-id="@x.Id" class="btn btn-info text-white">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@x.Id" class="btn btn-warning text-dark">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                            </td>
-                            <td>
-                                <a asp-action="Delete" asp-route-id="@x.Id" class="btn btn-danger text-white">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        }
+            <!-- Previous -->
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link" asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   asp-route-email="@Context.Request.Query["email"]">
+                    « Prev
+                </a>
+            </li>
 
-                       
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
-else
-{
-    <div class="w-75 mx-auto p-3 mt-5 bg-primary text-white text-center shadow-sm rounded">
-        <h4>Not Found Employees </h4>
-    </div>
+            <!-- Page Numbers -->
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link fw-bold" asp-action="Index"
+                       asp-route-pageNumber="@i"
+                       asp-route-email="@Context.Request.Query["email"]">@i</a>
+                </li>
+            }
+
+            <!-- Next -->
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link" asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   asp-route-email="@Context.Request.Query["email"]">
+                    Next »
+                </a>
+            </li>
+        </ul>
+    </nav>
 }
